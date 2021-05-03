@@ -9,7 +9,7 @@ import pytorch_lightning as pl
 
 
 class MultipleImageDataset(Dataset):
-    def __init__(self, image_path):
+    def __init__(self, image_path, data_rep):
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,)),
@@ -22,12 +22,14 @@ class MultipleImageDataset(Dataset):
         assert len(images) > 0
 
         self.images = images
+        self.number_of_images = len(images)
+        self.data_rep = data_rep
 
     def __getitem__(self, idx):
-        return self.images[idx]
+        return self.images[idx % self.number_of_images]
 
     def __len__(self):
-        return len(self.images)
+        return len(self.images) * self.data_rep
 
 
 class MultipleImageDataModule(pl.LightningDataModule):
@@ -53,11 +55,11 @@ class MultipleImageDataModule(pl.LightningDataModule):
         self.val_dataset = None
 
     def setup(self, stage: Optional[str] = None):
-        self.train_dataset = MultipleImageDataset(self.train_path)
-        self.val_dataset = MultipleImageDataset(self.validation_path)
+        self.train_dataset = MultipleImageDataset(self.train_path, data_rep=1000)
+        self.val_dataset = MultipleImageDataset(self.validation_path, data_rep=1)
 
     def train_dataloader(self, *args, **kwargs) -> DataLoader:
         return DataLoader(self.train_dataset, self.batch_size, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self, *args, **kwargs) -> DataLoader:
-        return DataLoader(self.val_dataset, self.batch_size, shuffle=False, num_workers=self.num_workers)
+        return DataLoader(self.val_dataset, self.batch_size, shuffle=True, num_workers=self.num_workers)
