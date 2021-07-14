@@ -267,7 +267,7 @@ class ImageLogger(Callback):
             Image.fromarray(grid).save(path)
 
     def log_img(self, pl_module, batch, batch_idx, split="train"):
-        if (self.check_frequency(batch_idx) and  # batch_idx % self.batch_freq == 0
+        if split != "train" or (self.check_frequency(batch_idx) and  # batch_idx % self.batch_freq == 0
                 hasattr(pl_module, "log_images") and
                 callable(pl_module.log_images) and
                 self.max_images > 0):
