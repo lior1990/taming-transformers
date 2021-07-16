@@ -21,7 +21,7 @@ model:
       params:
         disc_conditional: False
         disc_in_channels: 3
-        disc_start: 30001
+        disc_start: 0
         disc_weight: 0.8
         codebook_weight: 1.0
 
@@ -30,5 +30,5 @@ data:
   params:
     batch_size: 3
     num_workers: 8
-    train_path: data/3imgs-256
-    validation_path: data/256x256
+    train_path: data/6imgs_gpnn_raw_128x128
+    validation_path: data/eval_128x128

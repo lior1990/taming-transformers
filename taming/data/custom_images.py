@@ -55,7 +55,7 @@ class MultipleImageDataModule(pl.LightningDataModule):
         self.val_dataset = None
 
     def setup(self, stage: Optional[str] = None):
-        self.train_dataset = MultipleImageDataset(self.train_path, data_rep=1000)
+        self.train_dataset = MultipleImageDataset(self.train_path, data_rep=1)
         self.val_dataset = MultipleImageDataset(self.validation_path, data_rep=1)
 
     def train_dataloader(self, *args, **kwargs) -> DataLoader:
