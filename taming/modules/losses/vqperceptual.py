@@ -24,6 +24,13 @@ def hinge_d_loss(logits_real, logits_fake):
     return d_loss
 
 
+def wgan_loss(logits_real, logits_fake):
+    loss_real = -torch.mean(logits_real)
+    loss_fake = torch.mean(logits_fake)
+    d_loss = 0.5 * (loss_real + loss_fake)
+    return d_loss
+
+
 def vanilla_d_loss(logits_real, logits_fake):
     d_loss = 0.5 * (
         torch.mean(torch.nn.functional.softplus(-logits_real)) +
@@ -35,9 +42,9 @@ class VQLPIPSWithDiscriminator(nn.Module):
     def __init__(self, disc_start, codebook_weight=1.0, pixelloss_weight=1.0,
                  disc_num_layers=3, disc_in_channels=3, disc_factor=1.0, disc_weight=1.0,
                  perceptual_weight=1.0, use_actnorm=False, disc_conditional=False,
-                 disc_ndf=64, disc_loss="hinge"):
+                 disc_ndf=64, disc_loss="wgan"):
         super().__init__()
-        assert disc_loss in ["hinge", "vanilla"]
+        assert disc_loss in ["hinge", "vanilla", "wgan"]
         self.codebook_weight = codebook_weight
         self.pixel_weight = pixelloss_weight
         self.perceptual_loss = LPIPS().eval()
@@ -53,6 +60,8 @@ class VQLPIPSWithDiscriminator(nn.Module):
             self.disc_loss = hinge_d_loss
         elif disc_loss == "vanilla":
             self.disc_loss = vanilla_d_loss
+        elif disc_loss == "wgan":
+            self.disc_loss = wgan_loss
         else:
             raise ValueError(f"Unknown GAN loss '{disc_loss}'.")
         print(f"VQLPIPSWithDiscriminator running with {disc_loss} loss.")
